@@ -1,0 +1,7 @@
+{
+  "purpose": "smoke_test",
+  "model": "gemini-3.5-flash",
+  "data": {
+    "status": "Viva agent OK"
+  }
+}

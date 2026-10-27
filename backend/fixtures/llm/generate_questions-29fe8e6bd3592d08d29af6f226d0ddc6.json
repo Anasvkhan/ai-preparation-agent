@@ -1,0 +1,215 @@
+{
+  "purpose": "generate_questions",
+  "model": "gemini-3.8-flash",
+  "data": {
+    "questions": [
+      {
+        "question": "What core problems associated with traditional manual attendance and early biometric systems prompted you to propose this face recognition attendance solution?",
+        "topic": "Problem Motivation",
+        "difficulty": "easy",
+        "expected_points": [
+          "Manual roll calls waste around 10 minutes of lecture time and suffer from proxy attendance.",
+          "RFID cards can be shared between students, still permitting proxy attendance.",
+          "Fingerprint scanners eliminate card sharing but cause bottlenecks and queues since only one student can be scanned at a time."
+        ],
+        "evidence_ids": [
+          "E1",
+          "E2",
+          "E9"
+        ]
+      },
+      {
+        "question": "Why did you choose a deep learning embedding approach over traditional computer vision techniques like Haar cascades for face recognition?",
+        "topic": "Literature Review & Model Selection",
+        "difficulty": "medium",
+        "expected_points": [
+          "Haar cascades were fast but proved inaccurate under poor lighting conditions.",
+          "Deep learning models map faces to a 128-dimensional embedding where faces of the same person are clustered close together.",
+          "FaceNet paired with MTCNN exhibits over 99% accuracy on the LFW benchmark and runs in real time on a mid-range GPU."
+        ],
+        "evidence_ids": [
+          "E2"
+        ]
+      },
+      {
+        "question": "Explain the three-tier architecture of your system and how data flows from the classroom to the final attendance record.",
+        "topic": "System Architecture",
+        "difficulty": "medium",
+        "expected_points": [
+          "Capture tier runs on a classroom computer with a 1080p camera sending one frame every two seconds.",
+          "Application tier is a Python Flask REST API performing face detection with MTCNN and computing FaceNet embeddings.",
+          "Data tier is a MySQL database storing student, course, session, and attendance information."
+        ],
+        "evidence_ids": [
+          "E3"
+        ]
+      },
+      {
+        "question": "How does the system prevent spoofing attempts, such as a student holding up a photograph or phone screen of someone else?",
+        "topic": "Liveness & Anti-Spoofing",
+        "difficulty": "medium",
+        "expected_points": [
+          "A liveness detection mechanism tracks eye blinking across consecutive frames to detect live presence.",
+          "A student must be recognised across at least three separate frames within the first fifteen minutes rather than just a single momentary snapshot."
+        ],
+        "evidence_ids": [
+          "E3",
+          "E5",
+          "E12"
+        ]
+      },
+      {
+        "question": "Describe the student enrollment process: what inputs are gathered, how is the face template generated, and how are raw images handled?",
+        "topic": "Enrollment Process",
+        "difficulty": "medium",
+        "expected_points": [
+          "Twenty images per student are captured from different angles during enrollment.",
+          "Each image is aligned, resized to 160x160 pixels, and processed through the embedding model.",
+          "The average embedding is calculated and saved as the student's template.",
+          "Raw face images are permanently deleted post-enrollment to protect privacy."
+        ],
+        "evidence_ids": [
+          "E4",
+          "E5"
+        ]
+      },
+      {
+        "question": "What measures have you implemented to safeguard student biometric data and comply with privacy considerations?",
+        "topic": "Security and Privacy",
+        "difficulty": "easy",
+        "expected_points": [
+          "Raw face images are deleted immediately after enrollment so that no photographs are retained.",
+          "Biometric face embeddings are kept in a separate table and encrypted with AES-256.",
+          "Only the API service account is authorized to read the stored face embeddings."
+        ],
+        "evidence_ids": [
+          "E4",
+          "E12"
+        ]
+      },
+      {
+        "question": "Explain the database schema design: which tables exist, and what database optimization was done to ensure fast report generation?",
+        "topic": "Database Design & Performance",
+        "difficulty": "medium",
+        "expected_points": [
+          "There are five main tables: students, courses, enrollments, lecture_sessions, and attendance (plus face_embeddings).",
+          "The attendance table references student_id and session_id and logs first seen time and count of recognised frames.",
+          "Indexes on student_id and session_id maintain query execution times below 100 milliseconds across a full semester."
+        ],
+        "evidence_ids": [
+          "E4"
+        ]
+      },
+      {
+        "question": "How did you determine the similarity threshold of 0.75, and what were the resulting error rates on your validation set?",
+        "topic": "Evaluation & Parameter Tuning",
+        "difficulty": "hard",
+        "expected_points": [
+          "Tuned empirically using a validation set comprising 40 students.",
+          "A threshold of 0.75 balanced identification rates by achieving a False Acceptance Rate (FAR) of 0.5%.",
+          "It maintained a False Rejection Rate (FRR) of 3%."
+        ],
+        "evidence_ids": [
+          "E5"
+        ]
+      },
+      {
+        "question": "Looking at the matching logic implemented in face_matcher.py, how are face embeddings compared against enrolled templates and matched to an identity?",
+        "topic": "Implementation Details",
+        "difficulty": "hard",
+        "expected_points": [
+          "Uses cosine similarity computed as the dot product divided by the product of the L2 norms of the vectors.",
+          "Iterates over enrolled templates and identifies the student ID with the highest similarity score exceeding the 0.75 threshold.",
+          "Returns None if no enrolled student exceeds the 0.75 similarity threshold."
+        ],
+        "evidence_ids": [
+          "E15"
+        ]
+      },
+      {
+        "question": "According to update_attendance in face_matcher.py, what is the exact rule for marking a student present in a session?",
+        "topic": "Implementation Details",
+        "difficulty": "easy",
+        "expected_points": [
+          "The system increments a frame count for the identified student ID each time they are matched.",
+          "The student is marked present only when their recognition count reaches at least MIN_FRAMES_FOR_PRESENT (3 frames).",
+          "These frames must occur during the first fifteen minutes of the lecture session."
+        ],
+        "evidence_ids": [
+          "E3",
+          "E15"
+        ]
+      },
+      {
+        "question": "How did you test your system prior to classroom deployment, and what were the key performance metrics achieved during the pilot trial?",
+        "topic": "Testing and Evaluation",
+        "difficulty": "medium",
+        "expected_points": [
+          "Unit tests validated individual API endpoints and face-matching logic.",
+          "Integration tests replayed recorded classroom video feeds through the complete pipeline.",
+          "Pilot deployment evaluated 3 classes of 45 students over two weeks, attaining 96.8% accuracy compared to manual roll call and completing attendance in an average of 40 seconds."
+        ],
+        "evidence_ids": [
+          "E6",
+          "E13"
+        ]
+      },
+      {
+        "question": "What primary failure modes or recognition errors were encountered during classroom testing, and how were they mitigated?",
+        "topic": "System Limitations & Mitigation",
+        "difficulty": "hard",
+        "expected_points": [
+          "Errors primarily resulted from students wearing face masks or sitting in the back row under poor lighting conditions.",
+          "Deploying a second camera positioned at the back of the classroom cut these recognition errors in half."
+        ],
+        "evidence_ids": [
+          "E6"
+        ]
+      },
+      {
+        "question": "To what extent did the deployed system meet the primary project objectives you set out in the beginning?",
+        "topic": "Project Outcomes",
+        "difficulty": "easy",
+        "expected_points": [
+          "Attendance time was reduced from approximately 10 minutes to under 1 minute (averaging 40 seconds in trials).",
+          "Proxy attendance was eliminated during the pilot classes.",
+          "Real-time visibility was provided via a teacher dashboard while securing biometric data."
+        ],
+        "evidence_ids": [
+          "E1",
+          "E6",
+          "E7"
+        ]
+      },
+      {
+        "question": "What future extensions and technical improvements are planned to address the shortcomings identified during the pilot evaluation?",
+        "topic": "Future Work",
+        "difficulty": "easy",
+        "expected_points": [
+          "Developing masked face recognition to handle students wearing masks.",
+          "Building a dedicated mobile application for teachers.",
+          "Integrating the system directly with the university learning management system (LMS)."
+        ],
+        "evidence_ids": [
+          "E7",
+          "E14"
+        ]
+      },
+      {
+        "question": "What trade-offs were made regarding the camera capture rate and input resolution between hardware demands and system responsiveness?",
+        "topic": "Trade-offs and System Engineering",
+        "difficulty": "hard",
+        "expected_points": [
+          "Frames were captured at 1080p to provide sufficient resolution for face detection in a classroom setting.",
+          "The capture rate was limited to one frame every two seconds rather than a high-fps stream to reduce network overhead and API processing load on the mid-range GPU.",
+          "Captured faces were cropped and downscaled to 160x160 before embedding computation."
+        ],
+        "evidence_ids": [
+          "E2",
+          "E3",
+          "E5"
+        ]
+      }
+    ]
+  }
+}

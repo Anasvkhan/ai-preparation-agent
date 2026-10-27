@@ -1,0 +1,156 @@
+{
+  "purpose": "generate_questions",
+  "model": "gemini-3.8-flash",
+  "data": {
+    "questions": [
+      {
+        "question": "Can you explain the student enrollment pipeline and how the reference embedding template is generated?",
+        "topic": "Face Recognition Enrollment",
+        "difficulty": "medium",
+        "expected_points": [
+          "Twenty images are captured per student from different angles",
+          "Each image is aligned and resized to 160 by 160 pixels",
+          "Images are passed through the embedding model and the average embedding is stored as the student template",
+          "Raw face images are deleted after enrollment to reduce privacy risk"
+        ],
+        "evidence_ids": [
+          "E1",
+          "E9"
+        ]
+      },
+      {
+        "question": "Why did you choose a deep learning embedding approach like FaceNet with MTCNN over earlier methods such as RFID, fingerprints, or Haar cascades?",
+        "topic": "Literature Review and Model Selection",
+        "difficulty": "hard",
+        "expected_points": [
+          "RFID cards allow proxy attendance because cards can be shared",
+          "Fingerprint scanners cause queuing since only one student can be scanned at a time",
+          "Haar cascades were fast but inaccurate under poor classroom lighting",
+          "FaceNet maps faces into a 128-dimensional space with over 99% accuracy on the LFW benchmark and runs in real time on a mid-range GPU"
+        ],
+        "evidence_ids": [
+          "E3"
+        ]
+      },
+      {
+        "question": "How does the system ensure data privacy and secure the storage of biometric data?",
+        "topic": "Security and Privacy",
+        "difficulty": "medium",
+        "expected_points": [
+          "Face embeddings are stored in a dedicated face_embeddings table encrypted with AES-256",
+          "Access to encrypted embeddings is restricted to the API service account",
+          "Raw face images are deleted immediately after enrollment",
+          "Liveness detection with eye blinking checks prevents spoofing via photos or screens"
+        ],
+        "evidence_ids": [
+          "E1",
+          "E2",
+          "E9"
+        ]
+      },
+      {
+        "question": "Describe the overall three-tier architecture and how frames are captured and transmitted across the tiers.",
+        "topic": "System Architecture",
+        "difficulty": "easy",
+        "expected_points": [
+          "Capture tier runs on a classroom PC with a 1080p camera sending 1 frame every 2 seconds",
+          "Application tier is a Python Flask REST API performing face detection with MTCNN and recognition",
+          "Data tier is a MySQL database storing student records, sessions, courses, and attendance"
+        ],
+        "evidence_ids": [
+          "E4",
+          "E5"
+        ]
+      },
+      {
+        "question": "How is similarity calculated during recognition, and how did you tune the acceptance threshold?",
+        "topic": "Evaluation and Matching Logic",
+        "difficulty": "hard",
+        "expected_points": [
+          "Cosine similarity is calculated between incoming face embeddings and enrolled templates",
+          "A threshold of 0.75 was tuned using a validation set of 40 students",
+          "At 0.75, it yielded a 0.5% false acceptance rate (FAR) and a 3% false rejection rate (FRR)",
+          "The match function returns the student ID with the highest score strictly above 0.75"
+        ],
+        "evidence_ids": [
+          "E1",
+          "E5",
+          "E12"
+        ]
+      },
+      {
+        "question": "What rule or logic is enforced before a student is officially marked present, and why was it designed this way?",
+        "topic": "Attendance Business Logic",
+        "difficulty": "medium",
+        "expected_points": [
+          "A student must be recognized in at least three frames (MIN_FRAMES_FOR_PRESENT = 3)",
+          "These frames must occur during the first 15 minutes of the lecture session",
+          "This prevents a printed photo held up briefly from being registered as attendance"
+        ],
+        "evidence_ids": [
+          "E5",
+          "E12"
+        ]
+      },
+      {
+        "question": "What pilot testing results did you achieve, and did the system satisfy your project's performance objectives?",
+        "topic": "Experimental Results",
+        "difficulty": "easy",
+        "expected_points": [
+          "Pilot conducted across 3 classes of 45 students over two weeks",
+          "Achieved 96.8% accuracy compared with manual roll call",
+          "Marked attendance in an average of 40 seconds per lecture",
+          "Successfully met the target of completing attendance in under 1 minute compared to ~10 minutes manual roll calls"
+        ],
+        "evidence_ids": [
+          "E6",
+          "E8",
+          "E13",
+          "E14",
+          "E15"
+        ]
+      },
+      {
+        "question": "What were the main sources of recognition errors identified during the pilot, and how did you mitigate them?",
+        "topic": "Limitations and Error Analysis",
+        "difficulty": "medium",
+        "expected_points": [
+          "Errors primarily stemmed from students wearing masks",
+          "Errors also occurred for students seated in the back row under poor lighting conditions",
+          "Adding a second camera at the back of the room cut these errors by half"
+        ],
+        "evidence_ids": [
+          "E6"
+        ]
+      },
+      {
+        "question": "Explain the database schema design for tracking attendance and how query performance was optimized for reporting.",
+        "topic": "Database Design and Optimization",
+        "difficulty": "medium",
+        "expected_points": [
+          "Consists of five main tables: students, courses, enrollments, lecture_sessions, and attendance",
+          "The attendance table references student and lecture session, storing first seen time and frame count",
+          "Indexes on student_id and session_id keep semester attendance report queries under 100 ms"
+        ],
+        "evidence_ids": [
+          "E9"
+        ]
+      },
+      {
+        "question": "What limitations currently exist in your solution, and what specific future improvements do you propose?",
+        "topic": "Future Work",
+        "difficulty": "easy",
+        "expected_points": [
+          "Current limitation handling masked faces; future work includes masked face recognition",
+          "Developing a mobile application for teachers",
+          "Integration with the university learning management system (LMS)"
+        ],
+        "evidence_ids": [
+          "E6",
+          "E7",
+          "E13"
+        ]
+      }
+    ]
+  }
+}

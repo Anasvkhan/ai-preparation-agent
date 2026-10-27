@@ -1,0 +1,143 @@
+{
+  "purpose": "generate_questions",
+  "model": "gemini-3.8-flash",
+  "data": {
+    "questions": [
+      {
+        "question": "What core problems with manual attendance in university classrooms motivated the development of the Smart Attendance System, and what specific objectives were established to resolve them?",
+        "topic": "Problem Statement",
+        "difficulty": "easy",
+        "expected_points": [
+          "Manual roll call wastes around 10 minutes per lecture.",
+          "Manual roll call enables proxy attendance and lacks real-time reporting.",
+          "Objectives include cutting attendance time to under 1 minute, eliminating proxy attendance, providing real-time teacher dashboards, and securing biometric data."
+        ],
+        "evidence_ids": [
+          "E1",
+          "E7"
+        ]
+      },
+      {
+        "question": "In your literature review, why did you discard RFID cards, fingerprint scanners, and Haar cascade approaches in favor of a FaceNet-style embedding model?",
+        "topic": "Literature Review",
+        "difficulty": "medium",
+        "expected_points": [
+          "RFID cards can be shared, leaving proxy attendance unresolved.",
+          "Fingerprint scanners process only one student at a time, creating queues.",
+          "Haar cascades were fast but suffered from poor accuracy under variable lighting.",
+          "FaceNet-style embeddings map faces to a 128-dimensional space where identical faces cluster closely, offering high benchmark accuracy (>99% on LFW) in real time on mid-range GPUs."
+        ],
+        "evidence_ids": [
+          "E2"
+        ]
+      },
+      {
+        "question": "Describe the overall three-tier architecture of your system, specifying the responsibilities and technologies used in each tier.",
+        "topic": "System Architecture",
+        "difficulty": "easy",
+        "expected_points": [
+          "Capture tier runs on a classroom PC equipped with a 1080p camera capturing frames every two seconds.",
+          "Application tier is a Python Flask REST API performing face detection with MTCNN and face recognition.",
+          "Data tier is a MySQL database maintaining records of students, courses, sessions, and attendance."
+        ],
+        "evidence_ids": [
+          "E3"
+        ]
+      },
+      {
+        "question": "How does the proposed solution safeguard against quick spoofing attempts using held-up photos during live classroom sessions?",
+        "topic": "Proposed Solution",
+        "difficulty": "medium",
+        "expected_points": [
+          "Students must be successfully recognized in at least three separate frames (MIN_FRAMES_FOR_PRESENT = 3) during the first 15 minutes of lecture.",
+          "Liveness detection monitors eye blinking across consecutive frames to reject printed photos and screens."
+        ],
+        "evidence_ids": [
+          "E3",
+          "E5",
+          "E8",
+          "E9"
+        ]
+      },
+      {
+        "question": "Walk through the enrollment procedure in your Face Recognition Module. How is an enrolled template generated for a student?",
+        "topic": "Face Recognition Module",
+        "difficulty": "medium",
+        "expected_points": [
+          "Captures 20 images per student across multiple angles.",
+          "Aligns and resizes each captured image to 160x160 pixels.",
+          "Passes images through the embedding model and calculates the average embedding vector to serve as the template."
+        ],
+        "evidence_ids": [
+          "E5"
+        ]
+      },
+      {
+        "question": "How are face embeddings and biometric data secured and managed in your database schema to protect student privacy?",
+        "topic": "Database Design",
+        "difficulty": "hard",
+        "expected_points": [
+          "Embeddings are isolated in a separate face_embeddings table encrypted with AES-256.",
+          "Access is restricted strictly to the API service account.",
+          "Raw face images are deleted immediately following enrollment, storing only mathematical embeddings."
+        ],
+        "evidence_ids": [
+          "E4"
+        ]
+      },
+      {
+        "question": "Explain the implementation and logic of the match_face function in face_matcher.py, including how cosine similarity is evaluated.",
+        "topic": "face_matcher.py",
+        "difficulty": "medium",
+        "expected_points": [
+          "Computes cosine similarity between input embedding and enrolled templates using the dot product divided by the product of vector norms.",
+          "Initializes threshold at SIMILARITY_THRESHOLD (0.75) and iterates through enrolled templates.",
+          "Returns the student_id with the highest similarity score strictly greater than the threshold, or None if none qualify."
+        ],
+        "evidence_ids": [
+          "E3",
+          "E9"
+        ]
+      },
+      {
+        "question": "What trade-offs were observed when tuning the cosine similarity threshold to 0.75 on your validation dataset?",
+        "topic": "Face Recognition Module",
+        "difficulty": "hard",
+        "expected_points": [
+          "Evaluated using a validation cohort of 40 students.",
+          "The chosen threshold of 0.75 resulted in a False Acceptance Rate (FAR) of 0.5 percent.",
+          "Yielded a False Rejection Rate (FRR) of 3 percent."
+        ],
+        "evidence_ids": [
+          "E5"
+        ]
+      },
+      {
+        "question": "How does your database maintain query performance under 100 milliseconds for semester-wide attendance reports?",
+        "topic": "Database Design",
+        "difficulty": "medium",
+        "expected_points": [
+          "Indexes are placed specifically on student_id and session_id within the relational schema.",
+          "Attendance records reference student and lecture session keys with stored summary metrics (first seen time, recognised frame counts)."
+        ],
+        "evidence_ids": [
+          "E4"
+        ]
+      },
+      {
+        "question": "Detail how the update_attendance logic in face_matcher.py determines when a student is officially marked present.",
+        "topic": "face_matcher.py",
+        "difficulty": "easy",
+        "expected_points": [
+          "Takes a counts dictionary and increments the recognition tally for the student_id.",
+          "Compares the updated count against MIN_FRAMES_FOR_PRESENT (set to 3).",
+          "Returns True to designate attendance only when count meets or exceeds 3 frames."
+        ],
+        "evidence_ids": [
+          "E3",
+          "E9"
+        ]
+      }
+    ]
+  }
+}
